@@ -1,1 +1,6 @@
-/videos
+ffmpeg.exe
+videos/
+dist/
+build/
+*.spec
+__pycache__/

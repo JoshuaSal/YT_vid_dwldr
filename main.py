@@ -1,4 +1,5 @@
 import os
+import sys
 import threading
 import tkinter as tk
 from tkinter import messagebox, ttk
@@ -9,6 +10,16 @@ import yt_dlp
 # ==========================================
 OUTPUT_DIR = "videos"
 DOWNLOAD_FORMAT = "bestvideo[height<=1080]+bestaudio/best[height<=1080]"
+
+
+def get_ffmpeg_path():
+  """Gets the correct path to ffmpeg.exe whether running as script or frozen exe."""
+  if getattr(sys, "frozen", False):
+    # PyInstaller extracts bundled files to a temporary folder (_MEIPASS)
+    return os.path.join(sys._MEIPASS, "ffmpeg.exe")
+  else:
+    # Running locally during development
+    return os.path.join(os.path.dirname(__file__), "ffmpeg.exe")
 
 
 class YouTubeDownloaderApp:
@@ -42,7 +53,7 @@ class YouTubeDownloaderApp:
     ttk.Label(
         main_frame, text="Paste YouTube URL:", font=("Segoe UI", 10)
     ).pack(anchor=tk.W, pady=(0, 5))
-    
+
     self.url_entry = ttk.Entry(main_frame, width=55, font=("Segoe UI", 10))
     self.url_entry.pack(fill=tk.X, pady=(0, 15))
 
@@ -82,6 +93,7 @@ class YouTubeDownloaderApp:
     ydl_opts = {
         "format": DOWNLOAD_FORMAT,
         "outtmpl": os.path.join(OUTPUT_DIR, "%(title)s.%(ext)s"),
+        "ffmpeg_location": get_ffmpeg_path(),  # Points to bundled ffmpeg
     }
     try:
       with yt_dlp.YoutubeDL(ydl_opts) as ydl:
